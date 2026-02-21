@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microphone Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Microphone & Speech Recognition Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Browser Support Check</h2>
+        <div id="browserCheck"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Microphone Permission Test</h2>
+        <button onclick="testMicrophone()">Test Microphone Access</button>
+        <div id="micResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Speech Recognition Test</h2>
+        <button onclick="testSpeechRecognition()">Test Speech Recognition</button>
+        <div id="speechResult"></div>
+        <div id="transcription" style="margin-top: 10px; padding: 10px; background: white; min-height: 50px;"></div>
+    </div>
+    
+    <script>
+        // Check browser support
+        function checkBrowserSupport() {
+            const div = document.getElementById('browserCheck');
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const hasMediaDevices = !!navigator.mediaDevices;
+            const isHTTPS = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            
+            let html = '<ul>';
+            html += `<li class="${SpeechRecognition ? 'success' : 'error'}">Speech Recognition: ${SpeechRecognition ? '✓ Supported' : '✗ Not Supported'}</li>`;
+            html += `<li class="${hasMediaDevices ? 'success' : 'error'}">Media Devices API: ${hasMediaDevices ? '✓ Supported' : '✗ Not Supported'}</li>`;
+            html += `<li class="${isHTTPS ? 'success' : 'error'}">HTTPS/Localhost: ${isHTTPS ? '✓ OK' : '✗ Required for microphone'}</li>`;
+            html += `<li class="info">Browser: ${navigator.userAgent}</li>`;
+            html += '</ul>';
+            
+            div.innerHTML = html;
+        }
+        
+        // Test microphone
+        async function testMicrophone() {
+            const div = document.getElementById('micResult');
+            div.innerHTML = '<p class="info">Requesting microphone access...</p>';
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                div.innerHTML = '<p class="success">✓ Microphone access granted!</p>';
+                stream.getTracks().forEach(track => track.stop());
+            } catch (err) {
+                div.innerHTML = `<p class="error">✗ Microphone error: ${err.message}</p>`;
+                if (err.name === 'NotAllowedError') {
+                    div.innerHTML += '<p class="error">Please allow microphone access in your browser settings and refresh.</p>';
+                }
+            }
+        }
+        
+        // Test speech recognition
+        function testSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const div = document.getElementById('speechResult');
+            const transcriptionDiv = document.getElementById('transcription');
+            
+            if (!SpeechRecognition) {
+                div.innerHTML = '<p class="error">✗ Speech Recognition not supported in this browser.</p>';
+                return;
+            }
+            
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            recognition.onstart = () => {
+                div.innerHTML = '<p class="success">✓ Listening... Speak now!</p>';
+                transcriptionDiv.innerHTML = '<p>Listening...</p>';
+            };
+            
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = 0; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                transcriptionDiv.innerHTML = `<p><strong>You said:</strong> ${transcript}</p>`;
+            };
+            
+            recognition.onerror = (event) => {
+                div.innerHTML = `<p class="error">✗ Error: ${event.error}</p>`;
+            };
+            
+            recognition.onend = () => {
+                div.innerHTML = '<p class="info">Recognition ended. Click button again to test.</p>';
+            };
+            
+            try {
+                recognition.start();
+            } catch (e) {
+                div.innerHTML = `<p class="error">✗ Could not start: ${e.message}</p>`;
+            }
+        }
+        
+        // Run browser check on load
+        checkBrowserSupport();
+    </script>
+</body>
+</html>
+

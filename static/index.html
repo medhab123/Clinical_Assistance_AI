@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Assistant - Voice to Text</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Clinical Assistant</h1>
+            <p class="subtitle">Voice-to-Text Checkup Summarizer</p>
+        </header>
+
+        <main>
+            <div class="recording-section">
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Ready to record</span>
+                </div>
+
+                <button id="recordButton" type="button" class="record-button">
+                    <span class="button-icon">🎤</span>
+                    <span class="button-text">Start Recording</span>
+                </button>
+
+                <button id="stopButton" type="button" class="stop-button" disabled>
+                    <span class="button-icon">⏹️</span>
+                    <span class="button-text">Stop Recording</span>
+                </button>
+
+                <button id="clearButton" class="clear-button">
+                    <span class="button-icon">🗑️</span>
+                    <span class="button-text">Clear</span>
+                </button>
+            </div>
+
+            <div class="content-section">
+                <div class="panel">
+                    <h2>Live Transcription</h2>
+                    <div id="transcription" class="transcription-box">
+                        <p class="placeholder">Your transcription will appear here...</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Patient-Friendly Summary</h2>
+                    <div id="summary" class="summary-box">
+                        <p class="placeholder">Summary will be generated after you stop recording...</p>
+                    </div>
+                    <button id="generateSummaryButton" type="button" class="summary-button" disabled>
+                        Generate Summary
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Note: This tool uses AI to translate medical terminology into patient-friendly language.</p>
+            <p style="font-size: 0.85em; margin-top: 10px;">
+                <strong>Browser Requirements:</strong> Chrome, Edge, or Safari. Microphone access required.
+            </p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
+

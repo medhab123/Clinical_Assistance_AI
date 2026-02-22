@@ -1,70 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clinical Assistant - Voice to Text</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedScribe — Patient-Friendly Medical Summaries</title>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 25%, #3d7ab8 50%, #5b9ad4 75%, #7eb8e8 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.5;
+    animation: float 20s ease-in-out infinite;
+  }
+  .orb-1 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%);
+    top: -20%;
+    left: -10%;
+    animation-duration: 22s;
+    animation-delay: 0s;
+  }
+  .orb-2 {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(147,197,253,0.4) 0%, transparent 70%);
+    bottom: -15%;
+    right: -5%;
+    animation-duration: 18s;
+    animation-delay: -5s;
+  }
+  .orb-3 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(96,165,250,0.35) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-duration: 25s;
+    animation-delay: -10s;
+  }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -40px) scale(1.05); }
+    66% { transform: translate(-20px, 30px) scale(0.95); }
+  }
+
+  .noise {
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 40px 24px;
+    max-width: 600px;
+  }
+
+  .logo-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  .logo-icon svg {
+    width: 44px;
+    height: 44px;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+    50% { transform: scale(1.03); box-shadow: 0 25px 60px rgba(0,0,0,0.25); }
+  }
+
+  .brand {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(3rem, 12vw, 5.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    text-shadow: 0 4px 30px rgba(0,0,0,0.15);
+    margin-bottom: 16px;
+    animation: fadeInUp 0.8s ease both;
+  }
+
+  .tagline {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    font-weight: 500;
+    opacity: 0.9;
+    letter-spacing: 0.02em;
+    margin-bottom: 48px;
+    animation: fadeInUp 0.8s ease 0.15s both;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    color: #1e3a5f;
+    background: #fff;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.8s ease 0.3s both;
+  }
+  .cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+    background: rgba(255,255,255,0.98);
+  }
+  .cta:active {
+    transform: translateY(-1px);
+  }
+  .cta svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .badge {
+    display: inline-block;
+    margin-top: 48px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    animation: fadeInUp 0.8s ease 0.45s both;
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🏥 Clinical Assistant</h1>
-            <p class="subtitle">Voice-to-Text Checkup Summarizer</p>
-        </header>
+  <div class="bg-layer">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="noise"></div>
+  </div>
 
-        <main>
-            <div class="recording-section">
-                <div class="status-indicator" id="statusIndicator">
-                    <span class="status-dot"></span>
-                    <span id="statusText">Ready to record</span>
-                </div>
-
-                <button id="recordButton" type="button" class="record-button">
-                    <span class="button-icon">🎤</span>
-                    <span class="button-text">Start Recording</span>
-                </button>
-
-                <button id="stopButton" type="button" class="stop-button" disabled>
-                    <span class="button-icon">⏹️</span>
-                    <span class="button-text">Stop Recording</span>
-                </button>
-
-                <button id="clearButton" class="clear-button">
-                    <span class="button-icon">🗑️</span>
-                    <span class="button-text">Clear</span>
-                </button>
-            </div>
-
-            <div class="content-section">
-                <div class="panel">
-                    <h2>Live Transcription</h2>
-                    <div id="transcription" class="transcription-box">
-                        <p class="placeholder">Your transcription will appear here...</p>
-                    </div>
-                </div>
-
-                <div class="panel">
-                    <h2>Patient-Friendly Summary</h2>
-                    <div id="summary" class="summary-box">
-                        <p class="placeholder">Summary will be generated after you stop recording...</p>
-                    </div>
-                    <button id="generateSummaryButton" type="button" class="summary-button" disabled>
-                        Generate Summary
-                    </button>
-                </div>
-            </div>
-        </main>
-
-        <footer>
-            <p>Note: This tool uses AI to translate medical terminology into patient-friendly language.</p>
-            <p style="font-size: 0.85em; margin-top: 10px;">
-                <strong>Browser Requirements:</strong> Chrome, Edge, or Safari. Microphone access required.
-            </p>
-        </footer>
+  <main class="content">
+    <div class="logo-icon">
+      <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2">
+        <path d="M18 18v28h6V28l8 14 8-14v18h6V18h-6l-10 18L24 18h-6z"/>
+        <circle cx="32" cy="50" r="2" fill="white"/>
+      </svg>
     </div>
-
-    <script src="/static/app.js"></script>
+    <h1 class="brand">MedScribe</h1>
+    <p class="tagline">Patient-friendly medical summaries and health tracking</p>
+    <a href="/medscribe" class="cta">
+      Enter Patient Portal
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+      </svg>
+    </a>
+    <p class="badge">Record visits · Get summaries · Track health</p>
+  </main>
 </body>
 </html>
-

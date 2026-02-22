@@ -16,11 +16,13 @@ class ClinicalAssistant {
         this.stopButton = document.getElementById('stopButton');
         this.clearButton = document.getElementById('clearButton');
         this.generateSummaryButton = document.getElementById('generateSummaryButton');
+        this.downloadReportButton = document.getElementById('downloadReportButton');
         this.statusIndicator = document.getElementById('statusIndicator');
         this.statusText = document.getElementById('statusText');
         this.statusDot = document.querySelector('.status-dot');
         this.transcriptionBox = document.getElementById('transcription');
         this.summaryBox = document.getElementById('summary');
+        this.lastSummary = '';  // Store for download
     }
 
     initializeSpeechRecognition() {
@@ -156,6 +158,12 @@ class ClinicalAssistant {
             e.preventDefault();
             this.generateSummary();
         });
+        if (this.downloadReportButton) {
+            this.downloadReportButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.downloadReport();
+            });
+        }
     }
 
     async startRecording() {
@@ -219,14 +227,20 @@ class ClinicalAssistant {
         }
         this.isRecording = false;
         this.updateUI('stopped');
+        // Auto-generate patient-friendly summary when stopping (if we have transcript)
+        if (this.finalTranscript.trim()) {
+            this.generateSummary();
+        }
     }
 
     clearAll() {
         this.finalTranscript = '';
         this.transcription = '';
+        this.lastSummary = '';
         this.updateTranscription();
-        this.summaryBox.innerHTML = '<p class="placeholder">Summary will be generated after you stop recording...</p>';
+        this.summaryBox.innerHTML = '<p class="placeholder">Record the checkup, then click "Generate Summary" to create a patient-friendly report...</p>';
         this.generateSummaryButton.disabled = true;
+        if (this.downloadReportButton) this.downloadReportButton.disabled = true;
         this.updateUI('ready');
     }
 
@@ -313,9 +327,10 @@ class ClinicalAssistant {
             const data = await response.json();
 
             if (response.ok && data.summary) {
-                // Format the summary with line breaks
+                this.lastSummary = data.summary;
                 const formattedSummary = data.summary.replace(/\n/g, '<br>');
                 this.summaryBox.innerHTML = `<p>${formattedSummary}</p>`;
+                if (this.downloadReportButton) this.downloadReportButton.disabled = false;
             } else {
                 this.summaryBox.innerHTML = `<p style="color: #f44336;">Error: ${data.error || 'Failed to generate summary'}</p>`;
             }
@@ -325,6 +340,22 @@ class ClinicalAssistant {
         } finally {
             this.generateSummaryButton.disabled = false;
         }
+    }
+
+    downloadReport() {
+        if (!this.lastSummary) {
+            alert('No summary to download. Generate a summary first.');
+            return;
+        }
+        const date = new Date().toISOString().slice(0, 10);
+        const filename = `Patient-Friendly-Checkup-Summary-${date}.txt`;
+        const content = `PATIENT-FRIENDLY CHECKUP SUMMARY\nGenerated: ${new Date().toLocaleString()}\n\n${'='.repeat(50)}\n\n${this.lastSummary}`;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
     }
 }
 

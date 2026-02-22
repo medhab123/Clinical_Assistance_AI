@@ -146,8 +146,21 @@ button:disabled {
 
 .panel h2 {
     color: #667eea;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     font-size: 1.3em;
+}
+
+.panel-hint {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 12px;
+}
+
+.summary-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
 }
 
 .transcription-box,
@@ -177,8 +190,8 @@ button:disabled {
 }
 
 .summary-button {
-    margin-top: 15px;
-    width: 100%;
+    flex: 1;
+    min-width: 180px;
     background: #667eea;
     color: white;
     padding: 12px;
@@ -189,6 +202,17 @@ button:disabled {
     background: #5568d3;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.download-button {
+    background: #2196f3;
+    color: white;
+}
+
+.download-button:hover:not(:disabled) {
+    background: #1976d2;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
 }
 
 .loading {

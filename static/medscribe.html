@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedScribe — Patient Portal</title>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #4A90D9;
+    --primary-light: rgba(74,144,217,0.15);
+    --primary-dark: #2E6BB5;
+    --secondary: #5BB8A8;
+    --secondary-dark: #3D9B8C;
+    --accent: #E87A7A;
+    --accent-light: rgba(232,122,122,0.1);
+    --text: #1E3A5F;
+    --text-secondary: #4A6B8A;
+    --text-muted: #6B8AAA;
+    --glass: rgba(255,255,255,0.5);
+    --glass-strong: rgba(255,255,255,0.65);
+    --glass-subtle: rgba(255,255,255,0.32);
+    --glass-border: rgba(255,255,255,0.6);
+    --glass-border-dim: rgba(255,255,255,0.35);
+    --glass-shadow: 0 8px 32px rgba(30,58,95,0.06), inset 0 1px 0 rgba(255,255,255,0.65);
+    --glass-shadow-hover: 0 12px 40px rgba(30,58,95,0.09), inset 0 1px 0 rgba(255,255,255,0.75);
+    --blur: 22px;
+    --blur-heavy: 44px;
+    --radius: 18px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+    --card-bg: rgba(255,255,255,0.5);
+    --border: var(--glass-border-dim);
+    --border-light: rgba(255,255,255,0.4);
+    --bg: rgba(255,255,255,0.2);
+    --success: var(--secondary);
+    --danger: var(--accent);
+    --primary-hover: var(--primary-dark);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'DM Sans', sans-serif; font-size: 0.9375rem; color: var(--text); min-height: 100vh; background: #E8EDF5; line-height: 1.5; }
+  h1,h2,h3 { font-family: 'Fraunces', serif; font-weight: 600; color: var(--text); }
+  .bg-canvas { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: linear-gradient(155deg, #a8cce8 0%, #b8d6ef 25%, #c8e0f5 50%, #d4e8f8 75%, #e0effa 100%); }
+  .orb { position: absolute; border-radius: 50%; filter: blur(85px); will-change: transform; animation: drift 22s ease-in-out infinite; }
+  .orb-1 { width:520px;height:520px;background:radial-gradient(circle,rgba(74,144,217,0.35) 0%,transparent 70%);top:-8%;left:-6%;animation-duration:24s; }
+  .orb-2 { width:420px;height:420px;background:radial-gradient(circle,rgba(91,184,168,0.25) 0%,transparent 70%);top:35%;right:-10%;animation-duration:19s;animation-delay:-6s; }
+  .orb-3 { width:380px;height:380px;background:radial-gradient(circle,rgba(74,144,217,0.2) 0%,transparent 70%);bottom:-6%;left:25%;animation-duration:26s;animation-delay:-11s; }
+  .orb-4 { width:300px;height:300px;background:radial-gradient(circle,rgba(59,130,246,0.22) 0%,transparent 70%);top:18%;left:45%;animation-duration:21s;animation-delay:-9s; }
+  @keyframes drift { 0%,100%{transform:translate(0,0) scale(1);} 25%{transform:translate(35px,-45px) scale(1.06);} 50%{transform:translate(-25px,25px) scale(0.94);} 75%{transform:translate(45px,35px) scale(1.03);} }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.45); backdrop-filter: blur(var(--blur-heavy)); -webkit-backdrop-filter: blur(var(--blur-heavy)); border-top: 1px solid var(--glass-border-dim); display: none; justify-content: space-around; align-items: stretch; gap: 4px; padding: 10px 8px calc(10px + env(safe-area-inset-bottom)); z-index: 200; }
+  .bnav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 9px; font-weight: 600; color: var(--text-muted); text-decoration: none; padding: 4px 6px; border-radius: 8px; cursor: pointer; transition: color 0.2s, background 0.2s; flex: 1; min-width: 0; }
+  .bnav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .bnav-item:hover { color: var(--primary); background: rgba(74,144,217,0.06); }
+  .bnav-item.active { color: var(--primary); background: var(--primary-light); }
+  .bg-canvas::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); opacity:0.45; pointer-events:none; }
+  .header { position: sticky; top: 0; z-index: 100; padding: 0 24px; background: rgba(255,255,255,0.38); backdrop-filter: blur(var(--blur-heavy)); -webkit-backdrop-filter: blur(var(--blur-heavy)); border-bottom: 1px solid var(--glass-border-dim); }
+  .header-inner { max-width: 960px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+  .header-logo { display: flex; align-items: center; gap: 8px; }
+  .header-logo-icon { width: 34px; height: 34px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(74,144,217,0.35); }
+  .header-logo-icon svg { width: 18px; height: 18px; }
+  .header-logo-text { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--text); }
+  .header-logo-badge { font-size: 9px; font-weight: 700; color: var(--primary); background: var(--primary-light); backdrop-filter: blur(8px); padding: 2px 7px; border-radius: 6px; letter-spacing: 0.5px; border: 1px solid rgba(74,144,217,0.1); }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-link { font-size: 13px; font-weight: 600; color: var(--text-muted); text-decoration: none; padding: 8px 14px; border-radius: var(--radius-xs); transition: all 0.25s; cursor: pointer; background: transparent; border: 1px solid transparent; }
+  .nav-link:hover { color: var(--text-secondary); background: var(--glass-subtle); border-color: var(--glass-border-dim); }
+  .nav-link.active { color: var(--primary); background: var(--primary-light); border-color: rgba(45,108,223,0.1); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .icon-btn { width: 38px; height: 38px; border-radius: var(--radius-sm); border: 1px solid var(--glass-border-dim); background: var(--glass-subtle); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s; position: relative; }
+  .icon-btn:hover { background: var(--glass); border-color: var(--glass-border); }
+  .icon-btn svg { width: 18px; height: 18px; color: var(--text-secondary); }
+  .avatar-sm { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--secondary), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; box-shadow: 0 3px 10px rgba(74,144,217,0.25); }
+  .container { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 28px 24px 100px; }
+  .greeting-card { background: linear-gradient(135deg,rgba(46,98,158,0.88) 0%,rgba(58,120,190,0.85) 50%,rgba(52,110,175,0.82) 100%); backdrop-filter: blur(var(--blur)); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 28px 24px; margin-bottom: 24px; color: #fff; position: relative; overflow: hidden; box-shadow: 0 12px 40px rgba(30,58,95,0.18), inset 0 1px 0 rgba(255,255,255,0.1); }
+  .greeting-card::before { content:''; position:absolute; top:-50%; right:-20%; width:320px; height:320px; background:radial-gradient(circle,rgba(74,144,217,0.28) 0%,transparent 65%); border-radius:50%; }
+  .greeting-card::after { content:''; position:absolute; bottom:-40%; left:-10%; width:260px; height:260px; background:radial-gradient(circle,rgba(91,184,168,0.18) 0%,transparent 65%); border-radius:50%; }
+  .greeting-name { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 6px; position: relative; z-index: 1; }
+  .greeting-sub { color: rgba(180,195,225,0.8); font-size: 14px; position: relative; z-index: 1; margin-bottom: 18px; }
+  .greeting-stats { display: flex; gap: 12px; position: relative; z-index: 1; }
+  .g-stat { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm); padding: 12px 16px; flex: 1; backdrop-filter: blur(12px); transition: background 0.25s; }
+  .g-stat:hover { background: rgba(255,255,255,0.12); }
+  .g-stat-val { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; }
+  .g-stat-label { font-size: 11px; color: rgba(180,195,225,0.65); margin-top: 2px; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .section-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--text); }
+  .section-link { font-size: 13px; font-weight: 600; color: var(--primary); text-decoration: none; padding: 5px 12px; border-radius: 20px; background: var(--glass-subtle); backdrop-filter: blur(8px); border: 1px solid var(--glass-border-dim); transition: all 0.25s; cursor: pointer; }
+  .section-link:hover { background: var(--glass); border-color: var(--glass-border); }
+  .glass-card { background: var(--glass); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur)); border: 1px solid var(--glass-border); border-radius: var(--radius); box-shadow: var(--glass-shadow); position: relative; overflow: hidden; transition: box-shadow 0.25s, transform 0.25s, background 0.25s; }
+  .glass-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.7),transparent); pointer-events:none; z-index:1; }
+  .glass-card:hover { box-shadow: var(--glass-shadow-hover); background: var(--glass-strong); }
+  .report-card { background: var(--glass); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur)); border: 1px solid var(--glass-border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; box-shadow: var(--glass-shadow); transition: box-shadow 0.25s, background 0.25s; }
+  .report-card:hover { box-shadow: var(--glass-shadow-hover); background: var(--glass-strong); }
+  .report-card-header { padding: 18px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+  .report-date-pill { background: rgba(45,108,223,0.1); backdrop-filter: blur(6px); border: 1px solid rgba(45,108,223,0.12); color: var(--primary); font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 8px; flex-shrink: 0; }
+  .report-card-info { flex: 1; min-width: 0; }
+  .report-card-title { font-size: 0.9375rem; font-weight: 600; }
+  .report-card-doctor { font-size: 0.8125rem; color: var(--text-muted); margin-top: 2px; }
+  .report-type-badge { font-size: 0.6875rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.02em; }
+  .badge-voice { background: rgba(74,144,217,0.12); color: var(--primary); border: 1px solid rgba(74,144,217,0.15); }
+  .badge-text { background: rgba(91,184,168,0.12); color: var(--secondary-dark); border: 1px solid rgba(91,184,168,0.15); }
+  .expand-icon { width: 20px; height: 20px; color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0; }
+  .report-card.open .expand-icon { transform: rotate(180deg); }
+  .report-card-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .report-card.open .report-card-body { max-height: 1000px; }
+  .report-body-inner { padding: 0 20px 20px; border-top: 1px solid var(--border-light); }
+  .report-summary-text { font-size: 0.875rem; line-height: 1.65; color: var(--text-secondary); margin: 16px 0; padding-left: 16px; border-left: 3px solid var(--primary); }
+  .report-summary-formatted { font-size: 0.9375rem; line-height: 1.7; color: var(--text-secondary); }
+  .report-summary-formatted .report-section { margin-bottom: 24px; }
+  .report-summary-formatted .report-section:last-child { margin-bottom: 0; }
+  .report-summary-formatted .report-h3 { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--primary); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(74,144,217,0.2); }
+  .report-summary-formatted .report-summary-p { margin: 0 0 4px; color: var(--text-secondary); }
+  .report-summary-formatted .report-terms-list, .report-summary-formatted .report-bullet-list { margin: 0; padding-left: 20px; }
+  .report-summary-formatted .report-terms-list li, .report-summary-formatted .report-bullet-list li { margin-bottom: 10px; }
+  .report-summary-formatted .report-term-item { display: block; padding: 8px 12px; margin-bottom: 8px; background: rgba(74,144,217,0.06); border-radius: var(--radius-xs); border-left: 3px solid var(--primary); }
+  .report-summary-formatted .report-term-name { font-weight: 600; color: var(--text); }
+  .report-summary-formatted .report-term-def { color: var(--text-secondary); }
+  .report-summary-formatted .report-bullet-list li { padding-left: 4px; }
+  .report-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .report-tag { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.35); backdrop-filter: blur(6px); border: 1px solid var(--glass-border-dim); color: var(--text-secondary); }
+  .report-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .rpt-btn { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 500; font-family: inherit; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+  .rpt-btn svg { width: 16px; height: 16px; }
+  .rpt-btn.primary { background: var(--primary); color: #fff; }
+  .rpt-btn.primary:hover:not(:disabled) { background: var(--primary-hover); }
+  .rpt-btn.outline { background: var(--card-bg); color: var(--text-secondary); border: 1px solid var(--border); }
+  .rpt-btn.outline:hover:not(:disabled) { background: var(--border-light); }
+  .rec-record-card { background: var(--glass); backdrop-filter: blur(var(--blur)); border: 1px solid var(--glass-border); }
+  .rec-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .rec-btn { padding: 12px 24px; border-radius: var(--radius-xs); font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; border: none; transition: all 0.25s; }
+  .rec-btn.start { background: linear-gradient(135deg, var(--secondary), #00B496); color: #fff; box-shadow: 0 4px 16px rgba(0,201,167,0.35); }
+  .rec-btn.start:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,201,167,0.45); }
+  .rec-btn.stop { background: var(--accent); color: #fff; box-shadow: 0 4px 14px rgba(255,107,107,0.3); }
+  .rec-btn.stop:hover:not(:disabled) { transform: translateY(-1px); opacity: 0.95; }
+  .rec-btn.summary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(45,108,223,0.3); }
+  .rec-btn.summary:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); }
+  .rec-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .rec-status { font-size: 0.8125rem; color: var(--text-muted); }
+  .rec-status.recording { color: var(--danger); font-weight: 500; }
+  .rec-transcript { background: rgba(255,255,255,0.5); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius-xs); padding: 14px; min-height: 90px; max-height: 160px; overflow-y: auto; font-size: 0.875rem; line-height: 1.6; margin-bottom: 14px; box-shadow: inset 0 1px 2px rgba(26,33,56,0.04); }
+  .rec-transcript .placeholder { color: var(--text-muted); font-style: italic; }
+  .rec-summary-out { background: rgba(255,255,255,0.5); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius-xs); padding: 16px; min-height: 100px; font-size: 0.875rem; line-height: 1.65; white-space: pre-wrap; box-shadow: inset 0 1px 2px rgba(26,33,56,0.04); }
+  .pharmacy-finder-section { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--glass-border-dim); }
+  .pharmacy-finder-title { font-family: 'Fraunces', serif; font-size: 18px; margin-bottom: 8px; color: var(--text); }
+  .pharmacy-finder-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
+  .medications-list { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; align-items: center; }
+  .pharmacy-no-meds { font-size: 14px; color: var(--text-muted); margin: 0; }
+  .med-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(74,144,217,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(74,144,217,0.15); color: var(--primary); font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 10px; }
+  .med-badge a { color: var(--primary); text-decoration: none; }
+  .med-badge a:hover { text-decoration: underline; }
+  .pharmacy-finder-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .pharmacy-status { font-size: 14px; color: var(--text-muted); }
+  .pharmacy-results { display: flex; flex-direction: column; gap: 12px; }
+  .pharmacy-card { background: rgba(255,255,255,0.6); border: 1px solid var(--glass-border-dim); border-radius: var(--radius-sm); padding: 16px; }
+  .pharmacy-card-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .pharmacy-card-addr { font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+  .pharmacy-card-dist { font-size: 13px; color: var(--text-muted); }
+  .pharmacy-card-meds { font-size: 14px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--glass-border-dim); color: var(--text-secondary); }
+  .pharmacy-card-meds a { color: var(--primary); font-weight: 500; text-decoration: none; }
+  .pharmacy-card-meds a:hover { text-decoration: underline; }
+  .pharmacy-card-map { font-size: 14px; margin-top: 8px; }
+  .pharmacy-card-map a { color: var(--primary); font-weight: 500; text-decoration: none; }
+  .pharmacy-card-map a:hover { text-decoration: underline; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .schedule-form { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+  .schedule-form input, .schedule-form select { padding: 12px 16px; border-radius: var(--radius-xs); border: 1px solid var(--glass-border-dim); font-family: 'DM Sans', sans-serif; font-size: 15px; }
+  .schedule-card { background: var(--glass); backdrop-filter: blur(var(--blur)); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 16px 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; box-shadow: var(--glass-shadow); }
+  .schedule-card-info { flex: 1; min-width: 0; }
+  .schedule-card-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .schedule-card-meta { font-size: 14px; color: var(--text-secondary); }
+  .schedule-card-delete { background: rgba(255,107,107,0.1); color: var(--accent); border: 1px solid rgba(255,107,107,0.15); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+  .schedule-card-delete:hover { opacity: 0.9; }
+  .pharmacy-note { font-size: 0.6875rem; color: var(--text-muted); margin-top: 6px; font-style: italic; }
+  .rec-summary-out .error-msg { color: var(--danger); font-size: 0.8125rem; }
+  .rec-summary-out .loading { color: var(--text-muted); font-style: italic; }
+  .bnav-item svg { flex-shrink: 0; }
+  .upload-zone { border: 2px dashed rgba(74,144,217,0.25); border-radius: var(--radius-sm); padding: 28px; text-align: center; background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); cursor: pointer; transition: all 0.25s; margin-bottom: 20px; }
+  .upload-zone:hover, .upload-zone.dragover { border-color: rgba(74,144,217,0.45); background: rgba(74,144,217,0.06); }
+  .upload-zone input { display: none; }
+  .upload-zone-icon { width: 48px; height: 48px; margin: 0 auto 12px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+  .upload-zone-text { font-size: 0.875rem; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .upload-zone-hint { font-size: 0.75rem; color: var(--text-muted); }
+  .upload-list { display: flex; flex-direction: column; gap: 8px; }
+  .upload-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .upload-item-info { flex: 1; min-width: 0; }
+  .upload-item-name { font-size: 0.875rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .upload-item-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+  .upload-item-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .profile-section { margin-bottom: 24px; }
+  .profile-section-title { font-size: 0.8125rem; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .profile-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+  .profile-stat { background: var(--bg); border-radius: var(--radius-sm); padding: 14px 18px; flex: 1; min-width: 120px; }
+  .profile-stat-val { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+  .profile-stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+  .profile-link { font-size: 0.8125rem; color: var(--primary); font-weight: 500; cursor: pointer; margin-top: 8px; }
+  .profile-link:hover { text-decoration: underline; }
+  .profile-card { background: var(--glass); backdrop-filter: blur(var(--blur)); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
+  .upload-item { background: var(--glass-subtle); border: 1px solid var(--glass-border-dim); }
+  .schedule-form input, .schedule-form select { background: rgba(255,255,255,0.5); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.6); box-shadow: inset 0 1px 2px rgba(26,33,56,0.04); }
+  .schedule-form input:focus, .schedule-form select:focus { background: rgba(255,255,255,0.7); border-color: var(--primary); outline: none; }
+  @media (min-width: 769px) {
+    .bottom-nav { display: none; }
+  }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .bottom-nav { display: flex; }
+    .container { padding-bottom: 100px; }
+    .greeting-stats { flex-direction: column; gap: 8px; }
+  }
+  @media print {
+    .header, .bottom-nav, .bg-canvas, .orb, .bnav-item, .rec-controls, .upload-zone, .checklist-form, .checklist-actions, .doctor-summary-actions, .report-actions button { display: none !important; }
+    .doctor-summary-box { background: #fff; border: 1px solid #ccc; padding: 24px; }
+    body { background: #fff; }
+  }
+  @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  .tab-panel.active > * { animation: fadeInUp 0.5s ease both; }
+  .tab-panel.active > *:nth-child(1) { animation-delay: 0s; }
+  .tab-panel.active > *:nth-child(2) { animation-delay: 0.06s; }
+  .tab-panel.active > *:nth-child(3) { animation-delay: 0.12s; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(142,154,184,0.2); border-radius: 3px; }
+
+  /* ══════ NIGHT MODE ══════ */
+  [data-theme="dark"] { color-scheme: dark; --border-light: rgba(255,255,255,0.06); --card-bg: rgba(33,38,45,0.6); --bg: rgba(22,27,34,0.5); }
+  [data-theme="dark"] body { background: #0f1419; color: #e6edf3; }
+  [data-theme="dark"] .bg-canvas { background: linear-gradient(155deg, #0d1117 0%, #161b22 40%, #21262d 70%, #0d1117 100%); }
+  [data-theme="dark"] .orb-1 { background: radial-gradient(circle,rgba(45,108,223,0.15) 0%,transparent 70%); }
+  [data-theme="dark"] .orb-2 { background: radial-gradient(circle,rgba(0,201,167,0.1) 0%,transparent 70%); }
+  [data-theme="dark"] .orb-3 { background: radial-gradient(circle,rgba(124,92,252,0.08) 0%,transparent 70%); }
+  [data-theme="dark"] .orb-4 { background: radial-gradient(circle,rgba(255,107,107,0.06) 0%,transparent 70%); }
+  [data-theme="dark"] .bg-canvas::after { opacity: 0.2; }
+  [data-theme="dark"] .header { background: rgba(22,27,34,0.85); border-color: rgba(255,255,255,0.06); }
+  [data-theme="dark"] .glass, [data-theme="dark"] .report-card, [data-theme="dark"] .rec-record-card, [data-theme="dark"] .profile-card, [data-theme="dark"] .schedule-card, [data-theme="dark"] .pharmacy-card, [data-theme="dark"] .upload-item { background: rgba(33,38,45,0.6); border-color: rgba(255,255,255,0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  [data-theme="dark"] .greeting-card { background: linear-gradient(135deg,rgba(22,27,34,0.95) 0%,rgba(33,38,45,0.9) 50%,rgba(45,55,72,0.85) 100%); border-color: rgba(255,255,255,0.06); }
+  [data-theme="dark"] .bottom-nav { background: rgba(22,27,34,0.9); border-color: rgba(255,255,255,0.06); }
+  [data-theme="dark"] .nav-link { color: #8b949e; }
+  [data-theme="dark"] .nav-link:hover { color: #c9d1d9; background: rgba(255,255,255,0.06); }
+  [data-theme="dark"] .nav-link.active { color: #58a6ff; background: rgba(45,108,223,0.2); }
+  [data-theme="dark"] .icon-btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.08); }
+  [data-theme="dark"] .icon-btn:hover { background: rgba(255,255,255,0.1); }
+  [data-theme="dark"] .section-title, [data-theme="dark"] .report-card-title, [data-theme="dark"] .pharmacy-card-name { color: #e6edf3; }
+  [data-theme="dark"] .report-card-doctor, [data-theme="dark"] .pharmacy-card-addr, [data-theme="dark"] .rec-status, [data-theme="dark"] .pharmacy-status { color: #8b949e; }
+  [data-theme="dark"] .rec-transcript, [data-theme="dark"] .rec-summary-out, [data-theme="dark"] .schedule-form input, [data-theme="dark"] .schedule-form select, [data-theme="dark"] .profile-input { background: rgba(22,27,34,0.8); border-color: rgba(255,255,255,0.1); color: #e6edf3; }
+  [data-theme="dark"] .profile-input::placeholder { color: #6e7681; }
+  [data-theme="dark"] .report-tag, [data-theme="dark"] .med-badge { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.08); color: #8b949e; }
+  [data-theme="dark"] .report-summary-formatted .report-h3 { color: #58a6ff; border-color: rgba(88,166,255,0.25); }
+  [data-theme="dark"] .report-summary-formatted .report-term-item { background: rgba(88,166,255,0.08); border-color: #58a6ff; }
+  [data-theme="dark"] .upload-zone { background: rgba(33,38,45,0.5); border-color: rgba(74,144,217,0.35); }
+  [data-theme="dark"] .upload-zone:hover { background: rgba(74,144,217,0.1); }
+  [data-theme="dark"] .profile-stat { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.06); }
+  [data-theme="dark"] .bnav-item { color: #8b949e; }
+  [data-theme="dark"] .bnav-item.active, [data-theme="dark"] .bnav-item:hover { color: #58a6ff; }
+  [data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+  [data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+  .theme-toggle .icon-moon { display: block; }
+  .theme-toggle .icon-sun { display: none; }
+
+  /* ══════ FONT SIZE ══════ */
+  html[data-font="large"] { font-size: 18px; }
+  [data-font="large"] .section-title { font-size: 20px; }
+  [data-font="large"] .greeting-name { font-size: 26px; }
+  [data-font="large"] .profile-input, [data-font="large"] .schedule-form input, [data-font="large"] .profile-input { font-size: 16px; }
+
+  /* ══════ REDUCED MOTION ══════ */
+  [data-motion="reduced"] .orb { animation: none; }
+  [data-motion="reduced"] .tab-panel.active > * { animation: none; }
+  [data-motion="reduced"] .expand-icon { transition: none; }
+
+  /* Profile form */
+  .profile-form { display: flex; flex-direction: column; gap: 14px; }
+  .profile-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .profile-form-row { grid-template-columns: 1fr; } }
+  .profile-form-group { display: flex; flex-direction: column; gap: 6px; }
+  .profile-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.3px; }
+  .profile-input { padding: 12px 16px; border-radius: var(--radius-xs); border: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.5); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); transition: all 0.2s; }
+  .profile-input:focus { outline: none; border-color: var(--primary); background: rgba(255,255,255,0.7); box-shadow: 0 0 0 3px rgba(74,144,217,0.12); }
+  .profile-textarea { resize: vertical; min-height: 70px; }
+  .checklist-form { margin-bottom: 28px; }
+  .checklist-section { margin-bottom: 24px; padding: 20px; background: var(--glass); backdrop-filter: blur(var(--blur)); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); }
+  .checklist-h3 { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--primary); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(74,144,217,0.2); }
+  .checklist-check-row { margin-bottom: 10px; }
+  .checklist-check { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 500; }
+  .checklist-check input { width: 18px; height: 18px; accent-color: var(--primary); }
+  .checklist-check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px 20px; margin-top: 8px; }
+  .doctor-summary-actions { flex-wrap: wrap; gap: 10px; }
+  .send-doctor-btn { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)) !important; }
+  .send-doctor-btn:hover { opacity: 0.95; transform: translateY(-1px); }
+  .checklist-actions { margin-top: 20px; }
+  .doctor-summary-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--glass-border-dim); }
+  .doctor-summary-box { background: rgba(255,255,255,0.6); backdrop-filter: blur(8px); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 24px; font-size: 0.9375rem; line-height: 1.7; color: var(--text-secondary); }
+  .doctor-summary-box .ds-section { margin-bottom: 20px; }
+  .doctor-summary-box .ds-section:last-child { margin-bottom: 0; }
+  .doctor-summary-box .ds-title { font-family: 'Fraunces', serif; font-size: 0.9375rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+  .doctor-summary-box .ds-content { color: var(--text-secondary); }
+  .profile-prefs { display: flex; flex-direction: column; gap: 10px; }
+  .profile-pref-row { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; border-bottom: 1px solid var(--glass-border-dim); }
+  .profile-pref-row:last-child { border-bottom: none; }
+  .profile-pref-label { font-size: 14px; font-weight: 500; }
+  .profile-checkbox { position: absolute; opacity: 0; width: 0; height: 0; }
+  .profile-checkbox-toggle { width: 44px; height: 24px; background: rgba(142,154,184,0.3); border-radius: 12px; position: relative; flex-shrink: 0; transition: background 0.2s; }
+  .profile-checkbox-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s; }
+  .profile-checkbox:checked + .profile-checkbox-toggle { background: var(--primary); }
+  .profile-checkbox:checked + .profile-checkbox-toggle::after { transform: translateX(20px); }
+  [data-theme="dark"] .profile-checkbox-toggle { background: rgba(255,255,255,0.1); }
+  [data-theme="dark"] .profile-checkbox:checked + .profile-checkbox-toggle { background: #58a6ff; }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="header-logo-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path d="M12 2a10 10 0 00-7.07 17.07l1.41-1.41A8 8 0 1120 12h-2a6 6 0 10-6 6v2A10 10 0 0012 2z"/><circle cx="12" cy="12" r="3" fill="white"/></svg>
+      </div>
+      <span class="header-logo-text">MedScribe</span>
+      <span class="header-logo-badge">PATIENT</span>
+    </div>
+    <nav class="nav-links">
+      <a class="nav-link active" data-tab="tabHome">Home</a>
+      <a class="nav-link" data-tab="tabReports">Reports</a>
+      <a class="nav-link" data-tab="tabRx">Prescriptions</a>
+      <a class="nav-link" data-tab="tabSchedule">Schedule</a>
+      <a class="nav-link" data-tab="tabChecklist">Pre-Visit</a>
+      <a class="nav-link" data-tab="tabDocuments">Documents</a>
+      <a class="nav-link" data-tab="tabProfile">Profile</a>
+    </nav>
+    <div class="header-right">
+      <button type="button" class="icon-btn theme-toggle" id="themeToggle" title="Toggle night mode" aria-label="Toggle night mode">
+        <svg class="icon-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <div class="icon-btn" title="Notifications"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+      <div class="avatar-sm" id="headerAvatar">MC</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div id="tabHome" class="tab-panel active">
+  <div class="greeting-card">
+    <div class="greeting-name">Hi, Maria</div>
+    <div class="greeting-sub">Record checkups and get patient-friendly summaries</div>
+    <div class="greeting-stats">
+      <div class="g-stat">
+        <div class="g-stat-val" id="reportCount">0</div>
+        <div class="g-stat-label">Visit Reports</div>
+      </div>
+      <div class="g-stat">
+        <div class="g-stat-val">Today</div>
+        <div class="g-stat-label">Session</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2 class="section-title">Record New Visit</h2>
+  </div>
+
+  <div class="report-card rec-record-card" id="recordCard">
+    <div class="report-card-header" style="cursor:default;">
+      <div class="report-date-pill">Live</div>
+      <div class="report-card-info">
+        <div class="report-card-title">Voice-to-Text Checkup Recording</div>
+        <div class="report-card-doctor">Speak during the visit — medical jargon will be translated to patient-friendly language</div>
+      </div>
+      <span class="report-type-badge badge-voice">Voice</span>
+    </div>
+    <div class="report-card-body" style="max-height:none;">
+      <div class="report-body-inner">
+        <div class="rec-controls">
+          <button id="recordButton" type="button" class="rec-btn start">Start Recording</button>
+          <button id="stopButton" type="button" class="rec-btn stop" disabled>Stop Recording</button>
+          <button id="generateSummaryButton" type="button" class="rec-btn summary" disabled>Generate Patient Summary</button>
+          <button id="downloadReportButton" type="button" class="rpt-btn primary" disabled>Download Report</button>
+          <span id="statusText" class="rec-status">Ready to record</span>
+        </div>
+        <div class="rec-transcript" id="transcription">
+          <span class="placeholder">Live transcription will appear here...</span>
+        </div>
+        <div class="rec-summary-out" id="summary">
+          <span class="placeholder">Patient-friendly summary will appear here after you generate it.</span>
+        </div>
+        <div id="pharmacyFinderSection" class="pharmacy-finder-section" style="display:none;">
+          <h3 class="pharmacy-finder-title">Find Pharmacies & Prices</h3>
+          <p class="pharmacy-finder-desc">After your visit, find nearby pharmacies and compare medication prices.</p>
+          <div id="medicationsList" class="medications-list"></div>
+          <div class="pharmacy-finder-actions">
+            <button id="findPharmaciesBtn" type="button" class="rpt-btn primary">Find Nearby Pharmacies</button>
+            <span id="pharmacyStatus" class="pharmacy-status"></span>
+          </div>
+          <div id="pharmacyResults" class="pharmacy-results"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2 class="section-title">Visit Reports</h2>
+  </div>
+
+  <div id="reportsContainer" class="reports-list">
+    <div class="report-card open" onclick="toggleReport(this)">
+      <div class="report-card-header">
+        <div class="report-date-pill">Feb 20</div>
+        <div class="report-card-info">
+          <div class="report-card-title">General Consultation</div>
+          <div class="report-card-doctor">Dr. Rivera · Internal Medicine</div>
+        </div>
+        <span class="report-type-badge badge-voice">Voice</span>
+        <svg class="expand-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="report-card-body">
+        <div class="report-body-inner">
+          <div class="report-tags">
+            <span class="report-tag">Headache</span>
+            <span class="report-tag">Follow-up</span>
+          </div>
+          <div class="report-summary-text">
+            You visited for recurring headaches mainly in the back of the head. Dr. Rivera noted a likely connection to prolonged screen time and posture. You were prescribed Ibuprofen 400mg as needed. A follow-up is scheduled for Feb 28.
+          </div>
+          <div class="report-actions">
+            <button class="rpt-btn primary" onclick="event.stopPropagation();window.medScribe?.downloadReport();">Download Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="tabReports" class="tab-panel">
+    <div class="section-header">
+      <h2 class="section-title">Visit Reports</h2>
+    </div>
+    <div id="reportsContainerTab" class="reports-list"></div>
+  </div>
+
+  <div id="tabRx" class="tab-panel">
+    <div class="section-header">
+      <h2 class="section-title">Prescriptions & Pharmacies</h2>
+    </div>
+    <p class="pharmacy-finder-desc" style="margin-bottom:20px;">Find pharmacies for your prescribed medications. Record a visit first to extract medications, or enter them below.</p>
+    <div id="rxMedicationsList" class="medications-list"></div>
+    <div class="pharmacy-finder-actions" style="margin-top:16px;">
+      <button id="findPharmaciesBtnRx" type="button" class="rpt-btn primary">Find Nearby Pharmacies</button>
+      <span id="pharmacyStatusRx" class="pharmacy-status"></span>
+    </div>
+    <div id="pharmacyResultsRx" class="pharmacy-results" style="margin-top:20px;"></div>
+  </div>
+
+  <div id="tabSchedule" class="tab-panel">
+    <div class="section-header">
+      <h2 class="section-title">Schedule Checkup</h2>
+    </div>
+    <p class="pharmacy-finder-desc" style="margin-bottom:20px;">Schedule your upcoming checkups and appointments.</p>
+    <form id="scheduleForm" class="schedule-form">
+      <input type="date" id="scheduleDate" required placeholder="Date">
+      <input type="time" id="scheduleTime" required placeholder="Time">
+      <select id="scheduleType">
+        <option value="General">General Checkup</option>
+        <option value="Follow-up">Follow-up</option>
+        <option value="Specialist">Specialist</option>
+        <option value="Lab">Lab / Tests</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="text" id="scheduleNotes" placeholder="Notes (e.g. Dr. Smith, location)">
+      <button type="submit" class="rpt-btn primary">Add Checkup</button>
+    </form>
+    <div id="scheduleList"></div>
+  </div>
+
+  <div id="tabChecklist" class="tab-panel">
+    <div class="section-header">
+      <h2 class="section-title">Family History & Pre-Visit</h2>
+    </div>
+    <p class="pharmacy-finder-desc" style="margin-bottom:20px;">Complete your family medical history and visit details. Generate a summary to send to your doctor.</p>
+
+    <form id="checklistForm" class="checklist-form">
+      <div class="checklist-section">
+        <h3 class="checklist-h3">Reason for Visit</h3>
+        <div class="profile-form-group">
+          <label class="profile-label">Chief complaint / Main reason for today's visit</label>
+          <input type="text" id="checklistReason" class="profile-input" placeholder="e.g. Knee pain for 2 weeks">
+        </div>
+      </div>
+
+      <div class="checklist-section">
+        <h3 class="checklist-h3">Your Medical History & Symptoms</h3>
+        <div class="profile-form-group">
+          <label class="profile-label">Current symptoms (when they started, severity)</label>
+          <textarea id="checklistSymptoms" class="profile-input profile-textarea" rows="3" placeholder="e.g. Swelling and stiffness in right knee, started 2 weeks ago after basketball..."></textarea>
+        </div>
+        <div class="profile-form-group">
+          <label class="profile-label">Your chronic conditions</label>
+          <input type="text" id="checklistConditions" class="profile-input" placeholder="e.g. Hypertension, Type 2 Diabetes">
+        </div>
+        <div class="profile-form-group">
+          <label class="profile-label">Current medications (name, dosage, frequency)</label>
+          <textarea id="checklistMeds" class="profile-input profile-textarea" rows="2" placeholder="e.g. Lisinopril 10mg daily, Ibuprofen 400mg as needed"></textarea>
+        </div>
+        <div class="profile-form-group">
+          <label class="profile-label">Allergies (medication, food, environmental)</label>
+          <input type="text" id="checklistAllergies" class="profile-input" placeholder="e.g. Penicillin, shellfish">
+        </div>
+      </div>
+
+      <div class="checklist-section family-history-section">
+        <h3 class="checklist-h3">Family Medical History</h3>
+        <div class="profile-form-row">
+          <div class="profile-form-group">
+            <label class="profile-label">Mother — conditions, age or status</label>
+            <input type="text" id="checklistMother" class="profile-input" placeholder="e.g. Type 2 diabetes, 65; or deceased at 58 from cancer">
+          </div>
+          <div class="profile-form-group">
+            <label class="profile-label">Father — conditions, age or status</label>
+            <input type="text" id="checklistFather" class="profile-input" placeholder="e.g. Hypertension, heart disease; or living, 70">
+          </div>
+        </div>
+        <div class="profile-form-row">
+          <div class="profile-form-group">
+            <label class="profile-label">Siblings (number & any conditions)</label>
+            <input type="text" id="checklistSiblings" class="profile-input" placeholder="e.g. 2 sisters; one has asthma, one healthy">
+          </div>
+          <div class="profile-form-group">
+            <label class="profile-label">Children (any health conditions)</label>
+            <input type="text" id="checklistChildren" class="profile-input" placeholder="e.g. None; or son has allergies">
+          </div>
+        </div>
+        <div class="profile-form-row">
+          <div class="profile-form-group">
+            <label class="profile-label">Maternal grandparents — key conditions</label>
+            <input type="text" id="checklistMaternalGP" class="profile-input" placeholder="e.g. Grandmother: stroke. Grandfather: diabetes, deceased 75">
+          </div>
+          <div class="profile-form-group">
+            <label class="profile-label">Paternal grandparents — key conditions</label>
+            <input type="text" id="checklistPaternalGP" class="profile-input" placeholder="e.g. Grandmother: Alzheimer's. Grandfather: heart attack at 68">
+          </div>
+        </div>
+        <div class="profile-form-group">
+          <label class="profile-label">Other family (aunts, uncles, cousins) — significant conditions</label>
+          <textarea id="checklistOtherFamily" class="profile-input profile-textarea" rows="2" placeholder="e.g. Aunt: breast cancer. Uncle: colon cancer at 55. Cousin: lupus"></textarea>
+        </div>
+        <div class="profile-form-group">
+          <label class="profile-label">Family conditions checklist (check any that run in your family)</label>
+          <div class="checklist-check-grid">
+            <label class="checklist-check"><input type="checkbox" id="checklistFamHeart"> Heart disease</label>
+            <label class="checklist-check"><input type="checkbox" id="checklistFamDiabetes"> Diabetes</label>
+            <label class="checklist-check"><input type="checkbox" id="checklistFamCancer"> Cancer</label>
+            <label class="checklist-check"><input type="checkbox" id="checklistFamStroke"> Stroke</label>
+            <label class="checklist-check"><input type="checkbox" id="checklistFamHighBP"> High blood pressure</label>
+            <label class="checklist-check"><input type="checkbox" id="checklistFamMental"> Depression / anxiety</label>
+            <label class="checklist-check"><input type="checkbox" id="checklistFamAsthma"> Asthma / allergies</label>
+            <label class="checklist-check"><input type="checkbox" id="checklistFamOther"> Other (describe below)</label>
+          </div>
+          <input type="text" id="checklistFamilyOther" class="profile-input" style="margin-top:8px;" placeholder="e.g. Alzheimer's, kidney disease">
+        </div>
+      </div>
+
+      <div class="checklist-section">
+        <h3 class="checklist-h3">Preparation for Visit</h3>
+        <div class="profile-form-group">
+          <label class="profile-label">Questions to ask the doctor (prioritize top 3)</label>
+          <textarea id="checklistQuestions" class="profile-input profile-textarea" rows="2" placeholder="1. Is imaging needed?&#10;2. When can I return to activity?&#10;3. ..."></textarea>
+        </div>
+        <div class="profile-form-row">
+          <div class="profile-form-group">
+            <label class="profile-label">Other providers / specialists seen recently</label>
+            <input type="text" id="checklistProviders" class="profile-input" placeholder="e.g. Physical therapist, cardiologist">
+          </div>
+          <div class="profile-form-group">
+            <label class="profile-label">Accompanying support person (if any)</label>
+            <input type="text" id="checklistSupport" class="profile-input" placeholder="e.g. Spouse, caregiver">
+          </div>
+        </div>
+      </div>
+
+      <div class="checklist-section">
+        <h3 class="checklist-h3">Administrative</h3>
+        <div class="checklist-check-row">
+          <label class="checklist-check"><input type="checkbox" id="checklistId"> Photo ID ready</label>
+        </div>
+        <div class="checklist-check-row">
+          <label class="checklist-check"><input type="checkbox" id="checklistInsurance"> Insurance & demographics updated</label>
+        </div>
+        <div class="checklist-check-row">
+          <label class="checklist-check"><input type="checkbox" id="checklistCopay"> Copayment method ready</label>
+        </div>
+      </div>
+
+      <div class="checklist-actions">
+        <button type="submit" class="rpt-btn primary">Save & Generate Doctor Summary</button>
+      </div>
+    </form>
+
+    <div id="doctorSummarySection" class="doctor-summary-section" style="display:none;">
+      <h3 class="checklist-h3">Quick Summary for Doctor</h3>
+      <p class="pharmacy-finder-desc" style="margin-bottom:12px;">Share this before your visit. Use the buttons below to download, print, or send to your doctor.</p>
+      <div id="doctorSummary" class="doctor-summary-box"></div>
+      <div class="report-actions doctor-summary-actions">
+        <button type="button" class="rpt-btn primary send-doctor-btn" id="sendToDoctorBtn"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg> Send to Doctor</button>
+        <button type="button" class="rpt-btn primary" id="downloadSummaryBtn"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download</button>
+        <button type="button" class="rpt-btn outline" id="printSummaryBtn">Print</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tabDocuments" class="tab-panel">
+    <div class="section-header">
+      <h2 class="section-title">Medical Reports</h2>
+    </div>
+    <p class="pharmacy-finder-desc" style="margin-bottom:20px;">Upload medical reports, lab results, or imaging documents. Files are stored locally in your browser.</p>
+    <div id="uploadZone" class="upload-zone">
+      <input type="file" id="uploadInput" accept=".pdf,.png,.jpg,.jpeg,.heic" multiple>
+      <div class="upload-zone-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+      <div class="upload-zone-text">Drop files here or click to upload</div>
+      <div class="upload-zone-hint">PDF, PNG, JPG up to 2MB each</div>
+    </div>
+    <div id="uploadList" class="upload-list"></div>
+  </div>
+
+  <div id="tabProfile" class="tab-panel">
+    <div class="section-header">
+      <h2 class="section-title">Profile</h2>
+    </div>
+    <div class="report-card profile-card" style="padding:24px;margin-bottom:24px;">
+      <div class="avatar-sm" id="profileAvatar" style="width:64px;height:64px;font-size:24px;margin-bottom:16px;">MC</div>
+      <div class="greeting-name" style="color:var(--text);font-size:1.25rem;" id="profileName">Maria</div>
+      <div class="pharmacy-finder-desc" style="margin-top:8px;">Patient · MedScribe Portal</div>
+
+      <div class="profile-section" style="margin-top:24px;">
+        <div class="profile-section-title">Personal Info</div>
+        <form id="profileForm" class="profile-form">
+          <div class="profile-form-row">
+            <div class="profile-form-group">
+              <label class="profile-label">Display Name</label>
+              <input type="text" id="profileNameInput" class="profile-input" placeholder="Your name" maxlength="50">
+            </div>
+            <div class="profile-form-group">
+              <label class="profile-label">Avatar Initials (e.g. MC)</label>
+              <input type="text" id="profileInitialsInput" class="profile-input" placeholder="2-3 letters" maxlength="4">
+            </div>
+          </div>
+          <div class="profile-form-row">
+            <div class="profile-form-group">
+              <label class="profile-label">Email</label>
+              <input type="email" id="profileEmailInput" class="profile-input" placeholder="email@example.com">
+            </div>
+            <div class="profile-form-group">
+              <label class="profile-label">Phone</label>
+              <input type="tel" id="profilePhoneInput" class="profile-input" placeholder="(555) 123-4567">
+            </div>
+          </div>
+          <div class="profile-form-group">
+            <label class="profile-label">Emergency Contact</label>
+            <input type="text" id="profileEmergencyInput" class="profile-input" placeholder="Name and phone">
+          </div>
+          <button type="submit" class="rpt-btn primary" style="margin-top:12px;">Save Profile</button>
+        </form>
+      </div>
+
+      <div class="profile-section" style="margin-top:24px;">
+        <div class="profile-section-title">Preferences</div>
+        <div class="profile-prefs">
+          <label class="profile-pref-row">
+            <span class="profile-pref-label">Night mode</span>
+            <input type="checkbox" id="profileNightMode" class="profile-checkbox">
+            <span class="profile-checkbox-toggle"></span>
+          </label>
+          <label class="profile-pref-row">
+            <span class="profile-pref-label">Larger text</span>
+            <input type="checkbox" id="profileLargeFont" class="profile-checkbox">
+            <span class="profile-checkbox-toggle"></span>
+          </label>
+          <label class="profile-pref-row">
+            <span class="profile-pref-label">Reduced motion</span>
+            <input type="checkbox" id="profileReducedMotion" class="profile-checkbox">
+            <span class="profile-checkbox-toggle"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="profile-section" style="margin-top:24px;">
+        <div class="profile-section-title">Overview</div>
+        <div class="profile-stats">
+          <div class="profile-stat"><div class="profile-stat-val" id="profileReportCount">0</div><div class="profile-stat-label">Visit Reports</div></div>
+          <div class="profile-stat"><div class="profile-stat-val" id="profileDocCount">0</div><div class="profile-stat-label">Uploaded Documents</div></div>
+          <div class="profile-stat"><div class="profile-stat-val" id="profileScheduleCount">0</div><div class="profile-stat-label">Scheduled Checkups</div></div>
+        </div>
+        <div class="profile-link" data-tab="tabDocuments">View uploaded medical reports →</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<nav class="bottom-nav">
+  <a class="bnav-item active" data-tab="tabHome"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>Home</a>
+  <a class="bnav-item" data-tab="tabSchedule"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a>
+  <a class="bnav-item" data-tab="tabChecklist"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Pre-Visit</a>
+  <a class="bnav-item" data-tab="tabReports"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>Reports</a>
+  <a class="bnav-item" data-tab="tabRx"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6 6 0 11-4 11.2"/><circle cx="18" cy="18" r="3"/></svg>Rx</a>
+  <a class="bnav-item" data-tab="tabDocuments"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Documents</a>
+  <a class="bnav-item" data-tab="tabProfile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+</nav>
+
+<script src="/static/medscribe.js"></script>
+<script>
+  function toggleReport(el) { el.classList.toggle('open'); }
+</script>
+</body>
+</html>

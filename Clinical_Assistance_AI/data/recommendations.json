@@ -1,0 +1,134 @@
+{
+  "headache": {
+    "medications": ["Ibuprofen", "Acetaminophen", "Aspirin"],
+    "home_remedies": ["Rest in a dark, quiet room", "Apply cold or warm compress to forehead", "Stay hydrated", "Reduce screen time", "Gentle neck stretches"]
+  },
+  "migraine": {
+    "medications": ["Ibuprofen", "Acetaminophen", "Aspirin", "Sumatriptan (prescription)"],
+    "home_remedies": ["Rest in dark room", "Cold compress", "Avoid triggers (stress, certain foods)", "Stay hydrated", "Limit caffeine"]
+  },
+  "cough": {
+    "medications": ["Dextromethorphan (cough suppressant)", "Guaifenesin (expectorant)", "Honey", "Throat lozenges"],
+    "home_remedies": ["Honey and warm tea", "Steam inhalation", "Stay hydrated", "Elevate head while sleeping", "Humidifier"]
+  },
+  "sore throat": {
+    "medications": ["Acetaminophen", "Ibuprofen", "Throat lozenges", "Chloraseptic spray"],
+    "home_remedies": ["Warm salt water gargle", "Honey and lemon tea", "Stay hydrated", "Rest your voice", "Humidifier"]
+  },
+  "cold": {
+    "medications": ["Acetaminophen", "Ibuprofen", "Decongestants", "Antihistamines"],
+    "home_remedies": ["Rest", "Stay hydrated", "Warm fluids (soup, tea)", "Humidifier", "Saline nasal rinse"]
+  },
+  "flu": {
+    "medications": ["Acetaminophen", "Ibuprofen", "Tamiflu (prescription, early onset)"],
+    "home_remedies": ["Rest", "Stay hydrated", "Warm fluids", "Humidifier", "Avoid contact with others"]
+  },
+  "fever": {
+    "medications": ["Acetaminophen", "Ibuprofen"],
+    "home_remedies": ["Stay hydrated", "Light clothing", "Lukewarm sponge bath", "Rest"]
+  },
+  "nausea": {
+    "medications": ["Dramamine", "Pepto-Bismol", "Antacids"],
+    "home_remedies": ["Ginger tea or candied ginger", "Small, bland meals", "Avoid strong smells", "Stay hydrated with small sips"]
+  },
+  "indigestion": {
+    "medications": ["Antacids", "Omeprazole", "Pepto-Bismol"],
+    "home_remedies": ["Smaller meals", "Avoid fatty/spicy foods", "Don't lie down after eating", "Peppermint tea"]
+  },
+  "heartburn": {
+    "medications": ["Antacids", "Omeprazole", "Famotidine"],
+    "home_remedies": ["Eat smaller meals", "Avoid trigger foods", "Elevate head while sleeping", "Don't eat 2-3 hours before bed"]
+  },
+  "diarrhea": {
+    "medications": ["Loperamide", "Bismuth subsalicylate", "Oral rehydration salts"],
+    "home_remedies": ["BRAT diet (bananas, rice, applesauce, toast)", "Stay hydrated", "Avoid dairy and fatty foods"]
+  },
+  "constipation": {
+    "medications": ["Psyllium (fiber supplement)", "Docusate sodium", "Polyethylene glycol"],
+    "home_remedies": ["Increase fiber", "Stay hydrated", "Regular exercise", "Prunes or prune juice"]
+  },
+  "insomnia": {
+    "medications": ["Melatonin", "Diphenhydramine (short-term)", "Consult doctor for prescription"],
+    "home_remedies": ["Consistent sleep schedule", "Dark, cool room", "Limit screens before bed", "Avoid caffeine late in day"]
+  },
+  "anxiety": {
+    "medications": ["Consult doctor for options"],
+    "home_remedies": ["Deep breathing", "Regular exercise", "Limit caffeine", "Adequate sleep", "Mindfulness"]
+  },
+  "back pain": {
+    "medications": ["Ibuprofen", "Acetaminophen", "Topical pain creams"],
+    "home_remedies": ["Heat or ice pack", "Gentle stretches", "Improve posture", "Avoid heavy lifting"]
+  },
+  "muscle pain": {
+    "medications": ["Ibuprofen", "Acetaminophen", "Topical menthol creams"],
+    "home_remedies": ["Rest", "Ice then heat", "Gentle stretching", "Stay hydrated"]
+  },
+  "allergies": {
+    "medications": ["Antihistamines (cetirizine, loratadine)", "Nasal sprays", "Decongestants"],
+    "home_remedies": ["Avoid allergens", "Saline rinse", "Keep windows closed during pollen season", "Shower after outdoor exposure"]
+  },
+  "skin rash": {
+    "medications": ["Hydrocortisone cream", "Antihistamines", "Calamine lotion"],
+    "home_remedies": ["Cool compress", "Oatmeal bath", "Avoid scratching", "Wear loose, cotton clothing"]
+  },
+  "eczema": {
+    "medications": ["Hydrocortisone cream", "Moisturizers", "Antihistamines for itch"],
+    "home_remedies": ["Moisturize regularly", "Avoid irritants", "Short, lukewarm showers", "Humidifier"]
+  },
+  "sinus": {
+    "medications": ["Decongestants", "Nasal saline spray", "Acetaminophen", "Ibuprofen"],
+    "home_remedies": ["Steam inhalation", "Warm compress", "Stay hydrated", "Saline rinse"]
+  },
+  "earache": {
+    "medications": ["Acetaminophen", "Ibuprofen", "Ear drops (consult pharmacist)"],
+    "home_remedies": ["Warm compress", "Sleep with affected ear up", "Stay hydrated", "See doctor if severe"]
+  },
+  "fatigue": {
+    "medications": ["Address underlying cause - consult doctor"],
+    "home_remedies": ["Regular sleep schedule", "Stay hydrated", "Balanced diet", "Moderate exercise", "Limit caffeine"]
+  },
+  "stomach ache": {
+    "medications": ["Antacids", "Pepto-Bismol", "Simethicone (for gas)"],
+    "home_remedies": ["BRAT diet", "Ginger tea", "Heat pad", "Avoid fatty/spicy foods"]
+  },
+  "joint pain": {
+    "medications": ["Ibuprofen", "Acetaminophen", "Topical NSAIDs"],
+    "home_remedies": ["Rest", "Heat or ice", "Gentle movement", "Maintain healthy weight"]
+  },
+  "dizziness": {
+    "medications": ["Consult doctor - varies by cause"],
+    "home_remedies": ["Sit or lie down", "Stay hydrated", "Rise slowly", "Avoid sudden movements"]
+  },
+  "burn": {
+    "medications": ["Aloe vera gel", "Topical antibiotic ointment", "Pain relievers"],
+    "home_remedies": ["Cool water for 10-20 min", "Aloe vera", "Loose bandage", "Don't pop blisters"]
+  },
+  "cuts": {
+    "medications": ["Antibiotic ointment", "Bandages"],
+    "home_remedies": ["Clean with soap and water", "Apply pressure to stop bleeding", "Cover with bandage", "Keep dry"]
+  },
+  "acid reflux": {
+    "medications": ["Antacids", "Omeprazole", "Famotidine"],
+    "home_remedies": ["Eat smaller meals", "Avoid trigger foods", "Elevate head of bed", "Lose weight if needed"]
+  },
+  "gas": {
+    "medications": ["Simethicone", "Beano (with meals)"],
+    "home_remedies": ["Avoid gas-producing foods", "Eat slowly", "Peppermint tea", "Light walking after meals"]
+  },
+  "arthritis": {
+    "medications": ["Ibuprofen", "Acetaminophen", "Consult doctor for prescription options"],
+    "home_remedies": ["Gentle exercise", "Heat therapy", "Weight management", "Joint protection"]
+  },
+  "hypertension": {
+    "medications": ["Consult doctor - prescription required"],
+    "home_remedies": ["Reduce salt", "Regular exercise", "Healthy diet", "Limit alcohol", "Stress management"]
+  },
+  "diabetes": {
+    "medications": ["Consult doctor - prescription required"],
+    "home_remedies": ["Balanced diet", "Regular exercise", "Blood sugar monitoring", "Stay hydrated"]
+  },
+  "asthma": {
+    "medications": ["Consult doctor - inhalers typically needed"],
+    "home_remedies": ["Avoid triggers", "Use humidifier", "Stay hydrated", "Know action plan"]
+  }
+}

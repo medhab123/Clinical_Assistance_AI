@@ -116,6 +116,8 @@ Quick answer: Use **Ollama** - it's 100% free, no API key needed, and runs local
 4. **Translation**: The AI converts medical jargon into patient-friendly language
 5. **Summary Display**: A clear, structured summary is displayed for easy sharing with patients
 
+**📖 For developers:** See [DOCUMENTATION.md](DOCUMENTATION.md) for API reference, architecture, and technical details.
+
 ## Project Structure
 
 ```
